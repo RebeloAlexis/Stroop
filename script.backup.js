@@ -14,11 +14,6 @@ var erreurEl = null;
 var essaiCourant = null;
 var resultats = [];
 
-// Tracking de la souris
-let tracking = false;
-let mousePath = [];   // tableau contenant {x, y, t}
-let startPos = null;
-
 /******************************** */
 
 var couleurNormale = {
@@ -206,7 +201,6 @@ function choisirReponse(motChoisi) {
     essaiEnCours = false; // l'essai est terminé à partir du clic
     var h1 = document.getElementById('couleur');
     var correct = (motChoisi === bonneReponse);
-    var auc = stopTracking();
 
     // Enregistrer le résultat de cet essai
     resultats.push({
@@ -216,8 +210,7 @@ function choisirReponse(motChoisi) {
         congruent: essaiCourant.congruent,
         bonneReponse: bonneReponse,
         reponse: motChoisi,
-        correct: correct,
-        auc: auc
+        correct: correct
     });
 
     if (correct) {
@@ -292,87 +285,23 @@ function finBloc() {
 }
 
 /**********************************
- * Calcul de l'AUC
- * *******************************/
-function computeAUC(path) {
-    if (path.length < 2) return 0;
-
-    const x0 = path[0].x;
-    const y0 = path[0].y;
-
-    const x1 = path[path.length - 1].x;
-    const y1 = path[path.length - 1].y;
-
-    const normPath = path.map(p => ({
-        x: (p.x - x0) / (x1 - x0),
-        y: (p.y - y0) / (y1 - y0)
-    }));
-
-    // Ligne droite idéale (y = 0)
-    // On calcule l'écart vertical réel à chaque x
-    let auc = 0;
-    for (let i = 1; i < normPath.length; i++) {
-        const xPrev = normPath[i - 1].x;
-        const xCurr = normPath[i].x;
-
-        const yPrev = normPath[i - 1].y;
-        const yCurr = normPath[i].y;
-
-        const deltaX = xCurr - xPrev;
-        const meanY = (Math.abs(yPrev) + Math.abs(yCurr)) / 2;
-
-        auc += deltaX * meanY;
-    }
-
-    return auc;
-}
-
-/**********************************
- * Début du tracking
- * *******************************/
-function startTracking() {
-    tracking = true;
-    mousePath = [];
-    startPos = null;
-    console.log("Tracking ON");
-}
-
-/**********************************
- * Fin du tracking
- * *******************************/
-function stopTracking() {
-    tracking = false;
-    console.log("Tracking OFF");
-
-    const auc = computeAUC(mousePath);
-    console.log("AUC =", auc);
-
-    return auc;
-}
-
-/**********************************
  * Initialisation des boutons
  * *******************************/
 window.onload = function() {
     // Récupérer les éléments
+    boutonStart = document.getElementById('start');
     erreurEl = document.getElementById('erreur');
 
-    document.getElementById("start").addEventListener("click", () => {
-        afficherTexte();
-        startTracking();
-    });
-
     document.getElementById('blue').onclick = function() {
-        stopTracking();
+        choisirReponse('Bleu');
     };
     document.getElementById('yellow').onclick = function() {
-        stopTracking();
+        choisirReponse('Jaune');
     };
     document.getElementById('red').onclick = function() {
         choisirReponse('Rouge');
     };
     document.getElementById('green').onclick = function() {
         choisirReponse('Vert');
-
     };
 };
