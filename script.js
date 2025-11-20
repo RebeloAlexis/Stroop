@@ -44,6 +44,65 @@ var motOppose = {
 
 /******************************** */
 
+/**********************************
+ * Calcul de l'AUC
+ * *******************************/
+function computeAUC(path) {
+    if (path.length < 2) return 0;
+
+    const x0 = path[0].x;
+    const y0 = path[0].y;
+
+    const x1 = path[path.length - 1].x;
+    const y1 = path[path.length - 1].y;
+
+    const normPath = path.map(p => ({
+        x: (p.x - x0) / (x1 - x0),
+        y: (p.y - y0) / (y1 - y0)
+    }));
+
+    // Ligne droite idéale (y = 0)
+    // On calcule l'écart vertical réel à chaque x
+    let auc = 0;
+    for (let i = 1; i < normPath.length; i++) {
+        const xPrev = normPath[i - 1].x;
+        const xCurr = normPath[i].x;
+
+        const yPrev = normPath[i - 1].y;
+        const yCurr = normPath[i].y;
+
+        const deltaX = xCurr - xPrev;
+        const meanY = (Math.abs(yPrev) + Math.abs(yCurr)) / 2;
+
+        auc += deltaX * meanY;
+    }
+
+    return auc;
+}
+
+/**********************************
+ * Début du tracking
+ * *******************************/
+function startTracking() {
+    tracking = true;
+    mousePath = [];
+    startPos = null;
+    console.log("Tracking ON");
+}
+
+/**********************************
+ * Fin du tracking
+ * *******************************/
+function stopTracking() {
+    tracking = false;
+    console.log("Tracking OFF");
+
+    const auc = computeAUC(mousePath);
+    console.log("AUC =", auc);
+
+    return auc;
+}
+
 function getCouleur(essai) {
     if (essai.congruent) {
         return couleurNormale[essai.mot];
@@ -283,7 +342,7 @@ function finBloc() {
     var total = resultats.length;
     var nbCorrects = resultats.filter(function(r) { return r.correct; }).length;
 
-    h1.style.color = "black";
+    h1.style.color = "white";
     h1.innerText = "Fin du bloc\n" + nbCorrects + " / " + total + " réponses correctes";
 
     // Pour analyse : tout le tableau dans la console
@@ -292,81 +351,41 @@ function finBloc() {
 }
 
 /**********************************
- * Calcul de l'AUC
+ * Suivi de la souris
  * *******************************/
-function computeAUC(path) {
-    if (path.length < 2) return 0;
+document.addEventListener("mousemove", (event) => {
+    // uniquement si le tracking est activé
+    if (tracking) {
+        if (!startPos) {
+            startPos = { x: event.clientX, y: event.clientY };
+        }
 
-    const x0 = path[0].x;
-    const y0 = path[0].y;
-
-    const x1 = path[path.length - 1].x;
-    const y1 = path[path.length - 1].y;
-
-    const normPath = path.map(p => ({
-        x: (p.x - x0) / (x1 - x0),
-        y: (p.y - y0) / (y1 - y0)
-    }));
-
-    // Ligne droite idéale (y = 0)
-    // On calcule l'écart vertical réel à chaque x
-    let auc = 0;
-    for (let i = 1; i < normPath.length; i++) {
-        const xPrev = normPath[i - 1].x;
-        const xCurr = normPath[i].x;
-
-        const yPrev = normPath[i - 1].y;
-        const yCurr = normPath[i].y;
-
-        const deltaX = xCurr - xPrev;
-        const meanY = (Math.abs(yPrev) + Math.abs(yCurr)) / 2;
-
-        auc += deltaX * meanY;
+        mousePath.push({
+            x: event.clientX,
+            y: event.clientY,
+            t: performance.now()
+        });
     }
-
-    return auc;
-}
-
-/**********************************
- * Début du tracking
- * *******************************/
-function startTracking() {
-    tracking = true;
-    mousePath = [];
-    startPos = null;
-    console.log("Tracking ON");
-}
-
-/**********************************
- * Fin du tracking
- * *******************************/
-function stopTracking() {
-    tracking = false;
-    console.log("Tracking OFF");
-
-    const auc = computeAUC(mousePath);
-    console.log("AUC =", auc);
-
-    return auc;
-}
+});
 
 /**********************************
  * Initialisation des boutons
  * *******************************/
 window.onload = function() {
     // Récupérer les éléments
+    boutonStart = document.getElementById('start');
     erreurEl = document.getElementById('erreur');
 
-    document.getElementById("start").addEventListener("click", () => {
+    boutonStart.onclick = function() {
         afficherTexte();
         startTracking();
-    });
+    };
 
     document.getElementById('blue').onclick = function() {
-        stopTracking();
+        choisirReponse('Bleu');
     };
     document.getElementById('yellow').onclick = function() {
-        stopTracking();
+        choisirReponse('Jaune');
     };
     document.getElementById('red').onclick = function() {
         choisirReponse('Rouge');
@@ -375,4 +394,4 @@ window.onload = function() {
         choisirReponse('Vert');
 
     };
-};
+};  
