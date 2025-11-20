@@ -14,6 +14,8 @@ var erreurEl = null;
 var essaiCourant = null;
 var resultats = [];
 
+let isfinished = false;
+
 // Tracking de la souris
 let tracking = false;
 let mousePath = [];   // tableau contenant {x, y, t}
@@ -355,9 +357,9 @@ function choisirReponse(motChoisi) {
 function finBloc() {
     essaiEnCours = false;
 
-    if (boutonStart) {
-        boutonStart.style.display = "none";
-    }
+    isfinished = true;
+
+    
     if (erreurEl) {
         erreurEl.style.display = "none";
     }
@@ -368,7 +370,8 @@ function finBloc() {
     var nbCorrects = resultats.filter(function(r) { return r.correct; }).length;
 
     h1.style.color = "white";
-    h1.innerText = "Fin du bloc\n" + nbCorrects + " / " + total + " réponses correctes";
+    h1.style.fontSize = "30px";
+    h1.innerText = nbCorrects + " / " + total + " réponses correctes";
 
     // Pour analyse : tout le tableau dans la console
     console.log("==== RÉSULTATS ====");
@@ -408,6 +411,12 @@ window.onload = function() {
     erreurEl = document.getElementById('erreur');
 
     boutonStart.onclick = function() {
+
+        if (isfinished) {
+            // recharger la page pour un nouveau bloc
+            location.reload();
+        }
+
         afficherTexte();
         
         // Activer le tracking que si il reste des essais
