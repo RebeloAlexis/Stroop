@@ -19,6 +19,12 @@ let tracking = false;
 let mousePath = [];   // tableau contenant {x, y, t}
 let startPos = null;
 
+// temps pour calcul IT et MT
+let startTime = null;
+let firstMoveTime = null;
+let endTime = null;
+let takeFirstMoveTime = false;
+
 /******************************** */
 
 var couleurNormale = {
@@ -87,7 +93,6 @@ function startTracking() {
     tracking = true;
     mousePath = [];
     startPos = null;
-    console.log("Tracking ON");
 }
 
 /**********************************
@@ -95,14 +100,13 @@ function startTracking() {
  * *******************************/
 function stopTracking() {
     tracking = false;
-    console.log("Tracking OFF");
-
     const auc = computeAUC(mousePath);
-    console.log("AUC =", auc);
-
     return auc;
 }
 
+/**********************************
+ * Obtenir la couleur d'un essai
+ * *******************************/
 function getCouleur(essai) {
     if (essai.congruent) {
         return couleurNormale[essai.mot];
@@ -111,6 +115,9 @@ function getCouleur(essai) {
     }
 }
 
+/**********************************
+ * Génération un essai
+ * *******************************/
 function genererEssai(attribution) {
     var essais = [];
 
@@ -162,6 +169,9 @@ function genererEssai(attribution) {
     return essais;
 }
 
+/**********************************
+ * Mélanger les essais
+ * *******************************/
 function melangerEssais(essais) {
     for (var i = essais.length - 1; i > 0; i--) {
         var j = getRandomInt(i + 1);
@@ -171,6 +181,9 @@ function melangerEssais(essais) {
     }
 }
 
+/**********************************
+ * Attribuer les paires MC et MI aléatoirement
+ * *******************************/
 function getRandomMCorMI() {
     var paire1 = ["Rouge", "Vert"];
     var paire2 = ["Bleu", "Jaune"];
@@ -205,6 +218,7 @@ function getRandomMCorMI() {
  * Lancer un essai (START)
  * *******************************/
 function afficherTexte() {
+
     // éviter les doubles clics pendant un essai
     if (essaiEnCours) {
         return;
@@ -212,7 +226,7 @@ function afficherTexte() {
 
     // Fin du bloc
     if (tentative >= essais.length) {
-        finBloc();              // nouvelle fonction
+        finBloc();
         return;
     }
 
@@ -224,7 +238,7 @@ function afficherTexte() {
         boutonStart.style.display = "none";
     }
 
-    essaiCourant = essais[tentative];  // on garde l'essai courant
+    essaiCourant = essais[tentative];
     tentative++;
 
     var h1 = document.getElementById('couleur');
@@ -238,13 +252,17 @@ function afficherTexte() {
 
         // Déterminer la bonne réponse (mot correspondant à la couleur d’encre)
         if (essaiCourant.congruent) {
-            bonneReponse = essaiCourant.mot;          // même mot
+            bonneReponse = essaiCourant.mot; // même mot
         } else {
             bonneReponse = motOppose[essaiCourant.mot]; // mot opposé dans la paire
         }
 
         h1.innerText = texte;
         h1.style.color = couleur;
+
+        // Prise du temps de début et permission de prendre le premier mouvement
+        startTime = performance.now();
+        takeFirstMoveTime = true;
     }, 300);
 }
 
@@ -257,6 +275,13 @@ function getRandomInt(max) {
  * Clic sur une réponse
  * *******************************/
 function choisirReponse(motChoisi) {
+    // temps de fin
+    endTime = performance.now();
+
+    // calculer IT et MT
+    let IT = firstMoveTime - startTime;
+    let MT = endTime - firstMoveTime;
+
     // soit pas d'essai, soit le stimulus n'est pas encore apparu
     if (!essaiEnCours || bonneReponse === null) {
         return;
@@ -276,13 +301,14 @@ function choisirReponse(motChoisi) {
         bonneReponse: bonneReponse,
         reponse: motChoisi,
         correct: correct,
-        auc: auc
+        auc: auc,
+        IT: IT,
+        MT: MT
     });
 
     if (correct) {
-        console.log("Correct");
 
-        // on efface le stimulus si tu veux
+        // on efface le stimulus
         h1.innerText = "";
 
         // 500ms avant de pouvoir relancer un essai (Start réapparaît)
@@ -293,7 +319,6 @@ function choisirReponse(motChoisi) {
         }, 500);
 
     } else {
-        console.log("Incorrect");
 
         // afficher X rouge pendant 2s
         if (erreurEl) {
@@ -366,6 +391,12 @@ document.addEventListener("mousemove", (event) => {
             t: performance.now()
         });
     }
+
+    // Prendre le temps du premier mouvement
+    if (takeFirstMoveTime) {
+        firstMoveTime = performance.now();
+        takeFirstMoveTime = false;
+    }
 });
 
 /**********************************
@@ -378,7 +409,11 @@ window.onload = function() {
 
     boutonStart.onclick = function() {
         afficherTexte();
-        startTracking();
+        
+        // Activer le tracking que si il reste des essais
+        if (!(tentative >= essais.length + 1)) {
+            startTracking();
+        }
     };
 
     document.getElementById('blue').onclick = function() {
