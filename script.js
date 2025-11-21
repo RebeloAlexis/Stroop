@@ -13,6 +13,7 @@ var boutonStart = null;
 var erreurEl = null;
 var essaiCourant = null;
 var resultats = [];
+var warningMessage = null;
 
 let isfinished = false;
 
@@ -220,6 +221,9 @@ function getRandomMCorMI() {
  * Lancer un essai (START)
  * *******************************/
 function afficherTexte() {
+    if (warningMessage) {
+        warningMessage.style.display = "none";
+    }
 
     // éviter les doubles clics pendant un essai
     if (essaiEnCours) {
@@ -252,11 +256,11 @@ function afficherTexte() {
         var texte = essaiCourant.mot;
         var couleur = getCouleur(essaiCourant);
 
-        // Déterminer la bonne réponse (mot correspondant à la couleur d’encre)
+        // Déterminer la bonne réponse (mot correspondant à la même couleur)
         if (essaiCourant.congruent) {
-            bonneReponse = essaiCourant.mot; // même mot
+            bonneReponse = essaiCourant.mot;
         } else {
-            bonneReponse = motOppose[essaiCourant.mot]; // mot opposé dans la paire
+            bonneReponse = motOppose[essaiCourant.mot];
         }
 
         h1.innerText = texte;
@@ -265,6 +269,15 @@ function afficherTexte() {
         // Prise du temps de début et permission de prendre le premier mouvement
         startTime = performance.now();
         takeFirstMoveTime = true;
+
+        // Au bout de 500ms
+        setTimeout(function() {
+            if (essaiCourant && takeFirstMoveTime && !isfinished) {
+                if (warningMessage) {
+                    warningMessage.style.display = 'block';
+                }
+            }
+        }, 500);
     }, 300);
 }
 
@@ -399,6 +412,11 @@ document.addEventListener("mousemove", (event) => {
     if (takeFirstMoveTime) {
         firstMoveTime = performance.now();
         takeFirstMoveTime = false;
+
+        // Cacher le message de warning
+        if (warningMessage) {
+            warningMessage.style.display = "none";
+        }
     }
 });
 
@@ -409,6 +427,7 @@ window.onload = function() {
     // Récupérer les éléments
     boutonStart = document.getElementById('start');
     erreurEl = document.getElementById('erreur');
+    warningMessage = document.getElementById('warning');
 
     boutonStart.onclick = function() {
 

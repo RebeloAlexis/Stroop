@@ -87,3 +87,14 @@ body {
     text-align: center;
     display: none;
 }
+
+#warning {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: orange;
+    font-size: 18px;
+    text-align: center;
+    display: none;  
+}
