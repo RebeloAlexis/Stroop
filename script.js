@@ -389,6 +389,13 @@ function finBloc() {
     // Pour analyse : tout le tableau dans la console
     console.log("==== RÉSULTATS ====");
     console.log(resultats);
+
+    try {
+            savedata(resultats);
+            console.log("Données envoyées au serveur.");
+        } catch (e) {
+            console.error("Erreur lors de l'envoi des données :", e);
+        }
 }
 
 /**********************************
