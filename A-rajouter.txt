@@ -1,0 +1,19 @@
+Page accueil : 
+	- formulaire(age, genre, latéralité, daltonisme, souris)
+	- Exclusion enventuelle
+	- Consentement
+	- Explication expérience (tutoriel)
+
+Choix du groupe : (pas aléatoire, ni-laissé au participant) 80% RG ou BJ
+	--> Par exemple donner 2 urls différentes
+
+Déroulement de l'éssai : 
+	- pas de compteur (VALIDE)
+	- Respecter taille boutons et disposition de l'article
+	- btn start disparait (VALIDE)
+	- X en cas d'erreur (VALIDE)
+	- Message pour bouger la souris (VALIDE)
+
+Afficher en français (VALIDE)
+Respecter les pairs de couleurs (VALIDE)
+Enregistrer dans les coordonnées selon le temps de la postion x et y de la souris
