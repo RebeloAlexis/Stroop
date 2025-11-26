@@ -59,8 +59,8 @@ body {
     bottom: 55px;
     left: 50%;
     transform: translateX(-50%);
-    width: 5cm;
-    height: 2cm;
+    width: 170px;
+    height: 60px;
     background: #dddddd;
     border: none;
     cursor: pointer;
@@ -83,7 +83,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     color: red;
-    font-size: 80px;
+    font-size: 24px;
     text-align: center;
     display: none;
 }
@@ -93,8 +93,8 @@ body {
     bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
-    color: red;
-    font-size: 80px;
+    color: orange;
+    font-size: 18px;
     text-align: center;
     display: none;  
 }
