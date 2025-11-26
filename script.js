@@ -318,7 +318,8 @@ function choisirReponse(motChoisi) {
         correct: correct,
         auc: auc,
         IT: IT,
-        MT: MT
+        MT: MT,
+        mousePath: mousePath.slice() 
     });
 
     if (correct) {
@@ -372,8 +373,9 @@ function finBloc() {
 
     if (!isfinished) {
         try {
-            savedata(resultats);
+            //savedata(resultats);
             console.log("Données envoyées au serveur.");
+            console.log(resultats);
         } catch (e) {
             console.error("Erreur lors de l'envoi des données :", e);
         }
