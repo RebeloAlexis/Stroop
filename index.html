@@ -1,26 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Document</title>
-    <script src="savedata.js"></script>
-    <script src="script.js"></script>
+  <meta charset="UTF-8" />
+  <title>Expérience de Stroop - Accueil</title>
+  <link rel="stylesheet" href="styleAccueil.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="haut">
-        <button id="blue"><p>BLEU</p></button>
-        <button id="yellow"><p>JAUNE</p></button>
-    </div>
 
-    <div id="bas">
-        <button id="red"><p>ROUGE</p></button>
-        <button id="green"><p>VERT</p></button>
-    </div>
-    <h1 id="warning">Merci de commencer à bouger la souris</h1>
-    <h1 id="couleur"></h1>
-    <h1 id="erreur">X</h1>
-    <button id="start"><p>START</p></button>
+  <main class="container">
+    <h1>Expérience de Stroop</h1>
+    <p class="intro">
+      Cette page permet de recueillir quelques informations avant de commencer l’expérience,
+      de vérifier d’éventuels critères d’exclusion, et d’obtenir votre consentement éclairé.
+    </p>
+
+    <form class="form" id="pretest-form" action="">
+      <!-- SECTION 1 : FORMULAIRE -->
+      <fieldset class="section">
+        <legend>Formulaire</legend>
+
+        <p class="field half required">
+          <label class="label" for="age">Âge</label>
+          <input
+            class="text-input"
+            id="age"
+            type="number"
+            name="age"
+            min="18"
+            max="99"
+            required
+          />
+        </p>
+
+        <p class="field half required">
+          <label class="label" for="gender">Genre</label>
+          <select class="select" id="gender" name="gender" required>
+            <option value="" selected disabled>Choisissez...</option>
+            <option value="masculin">Masculin</option>
+            <option value="feminin">Féminin</option>
+          </select>
+        </p>
+
+        <p class="field half required">
+          <label class="label" for="laterality">Latéralité (main dominante)</label>
+          <select class="select" id="laterality" name="laterality" required>
+            <option value="" selected disabled>Choisissez...</option>
+            <option value="droitiere">Droitière / Droitier</option>
+            <option value="gauchere">Gauchère / Gaucher</option>
+          </select>
+        </p>
+
+        <p class="field half required">
+          <label class="label" for="colorblind">Daltonisme</label>
+          <select class="select" id="colorblind" name="colorblind" required>
+            <option value="" selected disabled>Choisissez...</option>
+            <option value="non">Non</option>
+            <option value="rouge-vert">Oui – rouge/vert</option>
+            <option value="autre">Oui – autre type</option>
+          </select>
+        </p>
+
+        <!-- CHAMP AFFICHÉ UNIQUEMENT SI "autre" EST SÉLECTIONNÉ -->
+        <p class="field half" id="colorblind-other-wrapper" style="display:none;">
+          <label class="label" for="colorblind-other">Précisez le type de daltonisme</label>
+          <input
+            class="text-input"
+            id="colorblind-other"
+            type="text"
+            name="colorblind_other"
+            placeholder="Ex : tritanopie"
+          />
+        </p>
+
+        <p class="field half required">
+          <label class="label" for="mouse">Périphérique de pointage principal</label>
+          <select class="select" id="mouse" name="mouse" required>
+            <option value="" selected disabled>Choisissez...</option>
+            <option value="souris">Souris</option>
+            <option value="pave-tactile">Pavé tactile (laptop)</option>
+            <option value="trackpad">Trackpad externe</option>
+            <option value="autre">Autre</option>
+          </select>
+        </p>
+      </fieldset>
+
+      <!-- SECTION 3 : CONSENTEMENT -->
+      <fieldset class="section">
+        <legend>Consentement</legend>
+        <p class="note">
+          En cochant la case ci-dessous, vous indiquez avoir compris le déroulement général
+          de l’expérience et accepter de participer. Vous pouvez arrêter à tout moment.
+        </p>
+        <p class="field">
+          <label class="consent-label">
+            <input type="checkbox" id="consent" name="consent" required />
+            <span>Je consens à participer à cette expérience de Stroop.</span>
+          </label>
+        </p>
+      </fieldset>
+
+      <!-- SECTION 4 : EXPLICATION / TUTORIEL -->
+      <fieldset class="section">
+        <legend>Explication de l’expérience (tutoriel)</legend>
+        <p class="note">
+          L’expérience de <strong>Stroop</strong> mesure la manière dont votre attention réagit
+          lorsque la signification d’un mot et sa couleur sont en conflit.
+        </p>
+        <ul class="tutorial-list">
+          <li>Vous verrez des mots qui désignent des couleurs (par ex. « ROUGE », « VERT », « BLEU »).</li>
+          <li>Ces mots seront affichés dans différentes couleurs d’encre.</li>
+          <li>Votre tâche est de répondre en fonction de la <strong>couleur de l’encre</strong>, et non du mot lui-même.</li>
+          <li>Par exemple, si le mot « ROUGE » est affiché en vert, la bonne réponse est « vert ».</li>
+          <li>La consigne précise et les touches à utiliser vous seront rappelées avant de commencer les essais réels.</li>
+        </ul>
+      </fieldset>
+
+      <!-- BOUTON -->
+      <p class="field">
+        <button class="button" type="submit">Commencer l’expérience</button>
+      </p>
+
+      <div class="magic-focus"></div>
+    </form>
+  </main>
+
+  <script src="scriptAccueil.js"></script>
 </body>
 </html>

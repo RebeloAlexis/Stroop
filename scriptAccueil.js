@@ -77,7 +77,7 @@ class MagicFocus {
       }
   
       // Si tout est OK → redirection vers index.html
-      window.location.href = "index.html";
+      window.location.href = "test1.html";
     });
   });
   
