@@ -13,8 +13,8 @@ body {
 
 #blue, #yellow, #red, #green {
     position: absolute;
-    width: 90px;
-    height: 90px;
+    width: 5cm;
+    height: 4cm;
     background: transparent;
     border: 3px solid #ffffff;
     color: #ffffff;
@@ -31,27 +31,27 @@ body {
 }
 
 #blue {
-    top: 75px;
+    top: 50px;
     left: 50%;
     transform: translateX(-300px);
 }
 
 #yellow {
-    top: 75px;
+    top: 50px;
     right: 50%;
     transform: translateX(300px);
 }
 
 #red {
-    top: 25%;
+    top: 28%;
     left: 50%;                     
-    transform: translateX(-450px);
+    transform: translateX(-500px);
 }
 
 #green {
-    top: 25%;
+    top: 28%;
     right: 50%;                    
-    transform: translateX(450px);
+    transform: translateX(500px);
 }
 
 #start {
@@ -59,8 +59,8 @@ body {
     bottom: 55px;
     left: 50%;
     transform: translateX(-50%);
-    width: 170px;
-    height: 60px;
+    width: 5cm;
+    height: 2cm;
     background: #dddddd;
     border: none;
     cursor: pointer;
