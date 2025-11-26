@@ -38,7 +38,7 @@ class MagicFocus {
       this.focusEl.style.width = 0;
   
       this.timeout = setTimeout(() => {
-        this.focusEl.removeAttribute('style');
+        this.focusEl.removeAttribute("style");
       }, 200);
     }
   }
@@ -63,19 +63,21 @@ class MagicFocus {
       }
     }
   
-    // Initialisation + écouteur
-    if (colorblindSelect) {
-      updateColorblindOther();
-      colorblindSelect.addEventListener('change', updateColorblindOther);
-    }
+    updateColorblindOther();
+    colorblindSelect.addEventListener('change', updateColorblindOther);
   
-    // --- Vérification du consentement à l'envoi ---
+    // --- Validation + redirection ---
     form.addEventListener('submit', (e) => {
+      e.preventDefault(); // on bloque la soumission normale
+  
       const consent = document.querySelector('#consent');
       if (!consent.checked) {
-        e.preventDefault();
-        alert('Vous devez cocher la case de consentement pour commencer l’expérience.');
+        alert("Vous devez cocher la case de consentement pour commencer l'expérience.");
+        return;
       }
+  
+      // Si tout est OK → redirection vers index.html
+      window.location.href = "index.html";
     });
   });
   
