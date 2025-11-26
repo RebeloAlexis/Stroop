@@ -1,0 +1,192 @@
+html {
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  body {
+    margin: 0;
+    padding: 2em;
+    background-color: #111111;
+    font-family: 'Titillium Web', sans-serif;
+    color: #ffffff;
+  }
+  
+  @media screen and (min-width: 40em) {
+    body {
+      font-size: 1.25em;
+    }
+  }
+  
+  .container {
+    max-width: 52em;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    margin: 0 0 0.5em 0;
+    font-size: 2em;
+  }
+  
+  .intro {
+    margin: 0 0 1.5em 0;
+    line-height: 1.5;
+    color: #dddddd;
+  }
+  
+  /* FORM LAYOUT */
+  .form {
+    max-width: 40em;
+    margin: 0;
+    position: relative;
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1.5em;
+  }
+  
+  .section {
+    border: 1px solid #222222;
+    padding: 1em 1.5em;
+    margin: 0;
+  }
+  
+  .section legend {
+    padding: 0 0.5em;
+    font-weight: 600;
+    color: #E8474C;
+  }
+  
+  .note {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+    font-size: 0.9em;
+    color: #cccccc;
+  }
+  
+  .field {
+    width: 100%;
+    margin: 0 0 1em 0;
+    position: relative;
+  }
+  
+  /* Deux colonnes en largeur suffisante */
+  @media screen and (min-width: 40em) {
+    .section {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  
+    .section .note {
+      width: 100%;
+    }
+  
+    .field.half {
+      width: calc(50% - 0.75em);
+      margin-right: 1.5em;
+    }
+  
+    .field.half:nth-child(odd) {
+      margin-right: 1.5em;
+    }
+  
+    .field.half:nth-child(even) {
+      margin-right: 0;
+    }
+  }
+  
+  /* BASE BLOCK (inputs, labels, boutons) */
+  .label,
+  .text-input,
+  .textarea,
+  .button,
+  .select {
+    padding: 0.75em 1em;
+    appearance: none;
+    outline: none;
+    line-height: normal;
+    border-radius: 0;
+    border: none;
+    background: none;
+    display: block;
+    box-sizing: border-box;
+  }
+  
+  /* LABEL */
+  .label {
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 0;
+    padding-left: 0;
+    letter-spacing: 0.025em;
+    font-size: 1.05em;
+    position: relative;
+    margin-bottom: 0.25em;
+  }
+  
+  .field.required .label::after {
+    content: " *";
+    color: #E8474C;
+    font-size: 0.75em;
+  }
+  
+  /* INPUTS + SELECT + TEXTAREA */
+  .text-input,
+  .textarea,
+  .select {
+    width: 100%;
+    background: #222222;
+    color: #ffffff;
+  }
+  
+  .textarea {
+    min-height: 4em;
+    resize: vertical;
+  }
+  
+  /* BOUTON */
+  .button {
+    background: #E8474C;
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.75em 2em;
+    width: auto;
+    margin-left: auto;
+    border: none;
+  }
+  
+  .button:hover,
+  .button:focus {
+    filter: brightness(1.1);
+  }
+  
+  /* CONSENTEMENT */
+  .consent-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    font-size: 0.95em;
+  }
+  
+  .consent-label input[type="checkbox"] {
+    width: 1em;
+    height: 1em;
+  }
+  
+  /* LISTE TUTORIEL */
+  .tutorial-list {
+    margin: 0;
+    padding-left: 1.2em;
+    font-size: 0.95em;
+  }
+  
+  /* MAGIC FOCUS */
+  .magic-focus {
+    position: absolute;
+    z-index: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.15);
+    transition: top 0.2s, left 0.2s, width 0.2s, height 0.2s;
+  }
+  
