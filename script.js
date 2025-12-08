@@ -1,7 +1,17 @@
 /**********************************
  * Variables globales
  * *******************************/
+// Charger les données du participant
+const userData = JSON.parse(localStorage.getItem("stroopUserData"));
+
+if (!userData) {
+    // Si aucune donnée : renvoyer vers le formulaire
+    window.location.href = "indexAccueil.html"; // nom à adapter
+}
+
 var nbEssais = 20;
+var nbBlocs = 6;
+var blocCourant = 1;
 
 var attribution = getRandomMCorMI();
 var essais = genererEssai(attribution);
@@ -309,18 +319,21 @@ function choisirReponse(motChoisi) {
 
     // Enregistrer le résultat de cet essai
     resultats.push({
-        index: tentative - 1,         
+        bloc: blocCourant,
+        index: tentative - 1,
+        age: userData.age,
+        genre: userData.genre,
+        lateralite: userData.laterality,
+        daltonisme: userData.colorblind,
+        autreDaltonisme: userData.colorblindOther,
+        modeDeplacement: userData.mouse,
         mot: essaiCourant.mot,
-        typePaire: essaiCourant.typePaire,
-        congruent: essaiCourant.congruent,
         bonneReponse: bonneReponse,
         reponse: motChoisi,
         correct: correct,
-        auc: auc,
-        IT: IT,
-        MT: MT,
-        mousePath: mousePath.slice() 
+        mousePath: mousePath.slice()
     });
+    
 
     if (correct) {
 
@@ -371,36 +384,72 @@ function choisirReponse(motChoisi) {
 function finBloc() {
     essaiEnCours = false;
 
-    if (!isfinished) {
-        try {
-            //savedata(resultats);
-            console.log("Données envoyées au serveur.");
-            console.log(resultats);
-        } catch (e) {
-            console.error("Erreur lors de l'envoi des données :", e);
-        }
-    }
-
-    isfinished = true;
-
-    
     if (erreurEl) {
         erreurEl.style.display = "none";
     }
 
     var h1 = document.getElementById('couleur');
 
-    var total = resultats.length;
-    var nbCorrects = resultats.filter(function(r) { return r.correct; }).length;
+    // Calcul des performances du bloc courant
+    var totalBloc = 0;
+    var nbCorrectsBloc = 0;
+    for (var i = 0; i < resultats.length; i++) {
+        if (resultats[i].bloc === blocCourant) {
+            totalBloc++;
+            if (resultats[i].correct) nbCorrectsBloc++;
+        }
+    }
 
-    h1.style.color = "white";
-    h1.style.fontSize = "30px";
-    h1.innerText = nbCorrects + " / " + total + " réponses correctes";
+    // Si on n'est PAS encore au dernier bloc
+    if (blocCourant < nbBlocs) {
 
-    // Pour analyse : tout le tableau dans la console
-    console.log("==== RÉSULTATS ====");
-    console.log(resultats);
+        h1.style.color = "white";
+        h1.style.fontSize = "30px";
+        h1.innerText =
+            "Bloc " + blocCourant + " terminé : " +
+            nbCorrectsBloc + " / " + totalBloc + " réponses correctes.\n" +
+            "Appuyez sur START pour passer au bloc suivant.";
+
+        // Préparer le bloc suivant
+        blocCourant++;
+        tentative = 0;
+        essais = genererEssai(attribution);
+
+        // Réafficher le bouton START
+        if (boutonStart) {
+            boutonStart.style.display = "block";
+        }
+
+    } else {
+        // Dernier bloc : fin de l'expérience
+
+        if (!isfinished) {
+            try {
+                savedata(resultats);
+                console.log("Données envoyées au serveur.");
+                console.log(resultats);
+            } catch (e) {
+                console.error("Erreur lors de l'envoi des données :", e);
+            }
+        }
+
+        isfinished = true;
+
+        // Stat globales sur tous les blocs
+        var total = resultats.length;
+        var nbCorrects = resultats.filter(function(r) { return r.correct; }).length;
+
+        h1.style.color = "white";
+        h1.style.fontSize = "30px";
+        h1.innerText =
+            "Expérience terminée : " +
+            nbCorrects + " / " + total + " réponses correctes";
+
+        console.log("==== RÉSULTATS ====");
+        console.log(resultats);
+    }
 }
+
 
 /**********************************
  * Suivi de la souris
@@ -443,7 +492,7 @@ window.onload = function() {
     boutonStart.onclick = function() {
 
         if (isfinished) {
-            // recharger la page pour un nouveau bloc
+            // recharger la page pour une nouvelle expérience complète
             location.reload();
         }
 

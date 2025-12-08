@@ -75,9 +75,40 @@ class MagicFocus {
         alert("Vous devez cocher la case de consentement pour commencer l'expérience.");
         return;
       }
-  
+
+      // Récupérer les informations utiles
+      var age = document.getElementById('age');
+      console.log(age);
+
       // Si tout est OK → redirection vers index.html
       window.location.href = "test1.html";
     });
   });
-  
+
+  document.getElementById("pretest-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const age = document.getElementById("age").value;
+    const gender = document.getElementById("gender").value;
+    const laterality = document.getElementById("laterality").value;
+    const colorblind = document.getElementById("colorblind").value;
+    const colorblindOther = document.getElementById("colorblind-other").value || null;
+    const mouse = document.getElementById("mouse").value;
+    const consent = document.getElementById("consent").checked;
+
+    // Stocker dans localStorage
+    const userData = {
+        age,
+        gender,
+        laterality,
+        colorblind,
+        colorblindOther,
+        mouse,
+        consent
+    };
+
+    localStorage.setItem("stroopUserData", JSON.stringify(userData));
+
+    // Redirection vers la page de l'expérience
+    window.location.href = "index.html";
+});
