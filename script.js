@@ -260,6 +260,8 @@ function afficherTexte() {
     var h1 = document.getElementById('couleur');
     h1.innerText = "";
     h1.style.color = "black";
+    h1.style.fontSize = "100px";
+
 
     // délai de 300 ms comme dans l'expérience
     setTimeout(function() {
