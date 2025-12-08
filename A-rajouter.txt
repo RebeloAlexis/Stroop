@@ -17,3 +17,7 @@ Déroulement de l'éssai :
 Afficher en français (VALIDE)
 Respecter les pairs de couleurs (VALIDE)
 Enregistrer dans les coordonnées selon le temps de la postion x et y de la souris (VALIDE)
+
+
+
+---> Pour l'analyse de données on oeut quasiment reprendre le code du prof. Le défi est surtout de pouvoir prendre en compte le JSON
