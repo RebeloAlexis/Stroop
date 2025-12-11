@@ -28,7 +28,8 @@ var resultats = [{
     "lateralite": userData.laterality,
     "daltonisme": userData.colorblind,
     "autreDaltonisme": userData.colorblindOther,
-    "modeDeplacement": userData.mouse
+    "modeDeplacement": userData.mouse,
+    "test": []
 }];
 var warningMessage = null;
 
@@ -334,7 +335,7 @@ function choisirReponse(motChoisi) {
     var correct = (motChoisi === bonneReponse);
 
     // Enregistrer le résultat de cet essai
-    resultats.push({
+    resultats[0].test.push({
         bloc: blocCourant,
         index: tentative - 1,
         mot: essaiCourant.mot,
@@ -342,8 +343,6 @@ function choisirReponse(motChoisi) {
         reponse: motChoisi,
         correct: correct,
         mousePath: mousePath.slice()
-        // IT: IT,          // si tu veux les stocker tu peux décommenter
-        // MT: MT
     });
     
 
@@ -405,10 +404,10 @@ function finBloc() {
     // Calcul des performances du bloc courant
     var totalBloc = 0;
     var nbCorrectsBloc = 0;
-    for (var i = 0; i < resultats.length; i++) {
-        if (resultats[i].bloc === blocCourant) {
+    for (var i = 0; i < resultats[0].test.length; i++) {
+        if (resultats[0].test[i].bloc === blocCourant) {
             totalBloc++;
-            if (resultats[i].correct) nbCorrectsBloc++;
+            if (resultats[0].test[i].correct) nbCorrectsBloc++;
         }
     }
 
@@ -438,7 +437,7 @@ function finBloc() {
 
         if (!isfinished) {
             try {
-                //savedata(resultats);
+                savedata(resultats);
                 console.log("Données envoyées au serveur.");
                 console.log(resultats);
             } catch (e) {
