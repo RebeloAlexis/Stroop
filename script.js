@@ -22,7 +22,14 @@ var essaiEnCours = false;
 var boutonStart = null;
 var erreurEl = null;
 var essaiCourant = null;
-var resultats = [];
+var resultats = [{
+    "age": userData.age,
+    "genre": userData.genre,
+    "lateralite": userData.laterality,
+    "daltonisme": userData.colorblind,
+    "autreDaltonisme": userData.colorblindOther,
+    "modeDeplacement": userData.mouse
+}];
 var warningMessage = null;
 
 let isfinished = false;
@@ -37,6 +44,9 @@ let startTime = null;
 let firstMoveTime = null;
 let endTime = null;
 let takeFirstMoveTime = false;
+
+// temps de référence pour chaque bloc (pour t = 0 au début du bloc)
+let blockStartTime = null;
 
 /******************************** */
 
@@ -246,6 +256,11 @@ function afficherTexte() {
         return;
     }
 
+    // Si c'est le tout premier essai du bloc, on fixe le temps de référence
+    if (tentative === 0) {
+        blockStartTime = performance.now();
+    }
+
     essaiEnCours = true;
     bonneReponse = null;
 
@@ -317,23 +332,18 @@ function choisirReponse(motChoisi) {
     essaiEnCours = false; // l'essai est terminé à partir du clic
     var h1 = document.getElementById('couleur');
     var correct = (motChoisi === bonneReponse);
-    var auc = stopTracking();
 
     // Enregistrer le résultat de cet essai
     resultats.push({
         bloc: blocCourant,
         index: tentative - 1,
-        age: userData.age,
-        genre: userData.genre,
-        lateralite: userData.laterality,
-        daltonisme: userData.colorblind,
-        autreDaltonisme: userData.colorblindOther,
-        modeDeplacement: userData.mouse,
         mot: essaiCourant.mot,
         bonneReponse: bonneReponse,
         reponse: motChoisi,
         correct: correct,
         mousePath: mousePath.slice()
+        // IT: IT,          // si tu veux les stocker tu peux décommenter
+        // MT: MT
     });
     
 
@@ -416,6 +426,7 @@ function finBloc() {
         blocCourant++;
         tentative = 0;
         essais = genererEssai(attribution);
+        blockStartTime = null;   // sera remis à jour au prochain premier essai
 
         // Réafficher le bouton START
         if (boutonStart) {
@@ -427,7 +438,7 @@ function finBloc() {
 
         if (!isfinished) {
             try {
-                savedata(resultats);
+                //savedata(resultats);
                 console.log("Données envoyées au serveur.");
                 console.log(resultats);
             } catch (e) {
@@ -463,10 +474,13 @@ document.addEventListener("mousemove", (event) => {
             startPos = { x: event.clientX, y: event.clientY };
         }
 
+        const now = performance.now();
+        const tRelatif = (blockStartTime !== null) ? now - blockStartTime : 0;
+
         mousePath.push({
             x: event.clientX,
             y: event.clientY,
-            t: performance.now()
+            t: tRelatif   // temps relatif depuis le début du bloc
         });
     }
 
@@ -517,6 +531,5 @@ window.onload = function() {
     };
     document.getElementById('green').onclick = function() {
         choisirReponse('Vert');
-
     };
-};  
+};
