@@ -40,8 +40,8 @@ err_flag <- function(correct) {
 
 prop_congr <- function(root, trial) {
   # si absent pour l’instant -> NA
-  pc <- trial[["prop.congr"]]
-  if (is.null(pc)) pc <- root[["prop.congr"]]
+  pc <- trial[["prop_congr"]]
+  if (is.null(pc)) pc <- root[["prop_congr"]]
   if (is.null(pc) || is.na(pc)) return(NA_character_)
   as.character(pc)
 }
