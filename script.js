@@ -9,7 +9,6 @@ if (!userData) {
     window.location.href = "indexAccueil.html"; // nom à adapter
 }
 
-var nbEssais = 20;
 var nbBlocs = 6;
 var blocCourant = 1;
 
@@ -23,8 +22,9 @@ var boutonStart = null;
 var erreurEl = null;
 var essaiCourant = null;
 var resultats = [{
+    "participant": userData.participant,
     "age": userData.age,
-    "genre": userData.genre,
+    "genre": userData.gender,
     "lateralite": userData.laterality,
     "daltonisme": userData.colorblind,
     "autreDaltonisme": userData.colorblindOther,
@@ -46,8 +46,8 @@ let firstMoveTime = null;
 let endTime = null;
 let takeFirstMoveTime = false;
 
-// temps de référence pour chaque bloc (pour t = 0 au début du bloc)
-let blockStartTime = null;
+// temps de référence pour chaque ESSAI : clic sur START (t = 0)
+let startClickTime = null;
 
 /******************************** */
 
@@ -91,8 +91,6 @@ function computeAUC(path) {
         y: (p.y - y0) / (y1 - y0)
     }));
 
-    // Ligne droite idéale (y = 0)
-    // On calcule l'écart vertical réel à chaque x
     let auc = 0;
     for (let i = 1; i < normPath.length; i++) {
         const xPrev = normPath[i - 1].x;
@@ -117,6 +115,9 @@ function startTracking() {
     tracking = true;
     mousePath = [];
     startPos = null;
+
+    // t=0 AU CLIC SUR START
+    startClickTime = performance.now();
 }
 
 /**********************************
@@ -145,51 +146,25 @@ function getCouleur(essai) {
 function genererEssai(attribution) {
     var essais = [];
 
-    // Pour chaque mot de la paire MC
     attribution.MC.forEach(function(mot) {
-        // Essais congruents pour ce mot
         for (var i = 0; i < attribution.nbCongMC; i++) {
-            essais.push({
-                mot: mot,
-                typePaire: "MC",
-                congruent: true
-            });
+            essais.push({ mot: mot, typePaire: "MC", congruent: true });
         }
-
-        // Essais incongruents pour ce mot
         for (var i = 0; i < attribution.nbIncongMC; i++) {
-            essais.push({
-                mot: mot,
-                typePaire: "MC",
-                congruent: false
-            });
+            essais.push({ mot: mot, typePaire: "MC", congruent: false });
         }
     });
 
-    // Pour chaque mot de la paire MI
     attribution.MI.forEach(function(mot) {
-        // Essais congruents pour ce mot
         for (var i = 0; i < attribution.nbCongMI; i++) {
-            essais.push({
-                mot: mot,
-                typePaire: "MI",
-                congruent: true
-            });
+            essais.push({ mot: mot, typePaire: "MI", congruent: true });
         }
-
-        // Essais incongruents pour ce mot
         for (var i = 0; i < attribution.nbIncongMI; i++) {
-            essais.push({
-                mot: mot,
-                typePaire: "MI",
-                congruent: false
-            });
+            essais.push({ mot: mot, typePaire: "MI", congruent: false });
         }
     });
 
-    // Mélanger les essais
     melangerEssais(essais);
-
     return essais;
 }
 
@@ -218,17 +193,15 @@ function getRandomMCorMI() {
         return {
             MC: paire1,
             MI: paire2,
-
-            nbCongMC: 4,   // pour chaque mot MC
+            nbCongMC: 4,
             nbIncongMC: 1,
-            nbCongMI: 1,   // pour chaque mot MI
+            nbCongMI: 1,
             nbIncongMI: 4
         };
     } else {
         return {
             MC: paire2,
             MI: paire1,
-
             nbCongMC: 4,
             nbIncongMC: 1,
             nbCongMI: 1,
@@ -237,6 +210,9 @@ function getRandomMCorMI() {
     }
 }
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
 
 /**********************************
  * Lancer un essai (START)
@@ -246,26 +222,16 @@ function afficherTexte() {
         warningMessage.style.display = "none";
     }
 
-    // éviter les doubles clics pendant un essai
-    if (essaiEnCours) {
-        return;
-    }
+    if (essaiEnCours) return;
 
-    // Fin du bloc
     if (tentative >= essais.length) {
         finBloc();
         return;
     }
 
-    // Si c'est le tout premier essai du bloc, on fixe le temps de référence
-    if (tentative === 0) {
-        blockStartTime = performance.now();
-    }
-
     essaiEnCours = true;
     bonneReponse = null;
 
-    // cacher le bouton START pendant l'essai
     if (boutonStart) {
         boutonStart.style.display = "none";
     }
@@ -278,13 +244,10 @@ function afficherTexte() {
     h1.style.color = "black";
     h1.style.fontSize = "100px";
 
-
-    // délai de 300 ms comme dans l'expérience
     setTimeout(function() {
         var texte = essaiCourant.mot;
         var couleur = getCouleur(essaiCourant);
 
-        // Déterminer la bonne réponse (mot correspondant à la même couleur)
         if (essaiCourant.congruent) {
             bonneReponse = essaiCourant.mot;
         } else {
@@ -294,47 +257,35 @@ function afficherTexte() {
         h1.innerText = texte;
         h1.style.color = couleur;
 
-        // Prise du temps de début et permission de prendre le premier mouvement
         startTime = performance.now();
         takeFirstMoveTime = true;
 
-        // Au bout de 500ms
         setTimeout(function() {
             if (essaiCourant && takeFirstMoveTime && !isfinished) {
-                if (warningMessage) {
-                    warningMessage.style.display = 'block';
-                }
+                if (warningMessage) warningMessage.style.display = 'block';
             }
         }, 500);
     }, 300);
-}
-
-
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
 }
 
 /**********************************
  * Clic sur une réponse
  * *******************************/
 function choisirReponse(motChoisi) {
-    // temps de fin
+    // stop tracking dès la réponse (évite d'enregistrer entre essais)
+    tracking = false;
+
     endTime = performance.now();
 
-    // calculer IT et MT
     let IT = firstMoveTime - startTime;
     let MT = endTime - firstMoveTime;
 
-    // soit pas d'essai, soit le stimulus n'est pas encore apparu
-    if (!essaiEnCours || bonneReponse === null) {
-        return;
-    }
+    if (!essaiEnCours || bonneReponse === null) return;
 
-    essaiEnCours = false; // l'essai est terminé à partir du clic
+    essaiEnCours = false;
     var h1 = document.getElementById('couleur');
     var correct = (motChoisi === bonneReponse);
 
-    // Enregistrer le résultat de cet essai
     resultats[0].test.push({
         bloc: blocCourant,
         index: tentative - 1,
@@ -342,49 +293,29 @@ function choisirReponse(motChoisi) {
         bonneReponse: bonneReponse,
         reponse: motChoisi,
         correct: correct,
+        congruent: essaiCourant.congruent,
+        typeEssai: essaiCourant.congruent ? "congruent" : "incongruent",
+        prop_congr: getPropCongr(essaiCourant),
         mousePath: mousePath.slice()
     });
-    
 
     if (correct) {
-
-        // on efface le stimulus
         h1.innerText = "";
-
-        // 500ms avant de pouvoir relancer un essai (Start réapparaît)
         setTimeout(function() {
-            if (boutonStart) {
-                boutonStart.style.display = "block";
-            }
+            if (boutonStart) boutonStart.style.display = "block";
         }, 500);
-
     } else {
-
-        // afficher X rouge pendant 2s
-        if (erreurEl) {
-            erreurEl.style.display = "block";
-        }
-
-        // on efface le stimulus
+        if (erreurEl) erreurEl.style.display = "block";
         h1.innerText = "";
 
         setTimeout(function() {
-            // retirer le X
-            if (erreurEl) {
-                erreurEl.style.display = "none";
-            }
-
-            // attendre encore 500ms avant de réafficher START
+            if (erreurEl) erreurEl.style.display = "none";
             setTimeout(function() {
-                if (boutonStart) {
-                    boutonStart.style.display = "block";
-                }
+                if (boutonStart) boutonStart.style.display = "block";
             }, 500);
-
         }, 2000);
     }
 
-    // reset
     bonneReponse = null;
     essaiCourant = null;
 }
@@ -395,13 +326,10 @@ function choisirReponse(motChoisi) {
 function finBloc() {
     essaiEnCours = false;
 
-    if (erreurEl) {
-        erreurEl.style.display = "none";
-    }
+    if (erreurEl) erreurEl.style.display = "none";
 
     var h1 = document.getElementById('couleur');
 
-    // Calcul des performances du bloc courant
     var totalBloc = 0;
     var nbCorrectsBloc = 0;
     for (var i = 0; i < resultats[0].test.length; i++) {
@@ -411,9 +339,7 @@ function finBloc() {
         }
     }
 
-    // Si on n'est PAS encore au dernier bloc
     if (blocCourant < nbBlocs) {
-
         h1.style.color = "white";
         h1.style.fontSize = "30px";
         h1.innerText =
@@ -421,20 +347,15 @@ function finBloc() {
             nbCorrectsBloc + " / " + totalBloc + " réponses correctes.\n" +
             "Appuyez sur START pour passer au bloc suivant.";
 
-        // Préparer le bloc suivant
+        console.log(resultats)
+
         blocCourant++;
         tentative = 0;
         essais = genererEssai(attribution);
-        blockStartTime = null;   // sera remis à jour au prochain premier essai
 
-        // Réafficher le bouton START
-        if (boutonStart) {
-            boutonStart.style.display = "block";
-        }
+        if (boutonStart) boutonStart.style.display = "block";
 
     } else {
-        // Dernier bloc : fin de l'expérience
-
         if (!isfinished) {
             try {
                 savedata(resultats);
@@ -447,9 +368,9 @@ function finBloc() {
 
         isfinished = true;
 
-        // Stat globales sur tous les blocs
-        var total = resultats.length;
-        var nbCorrects = resultats.filter(function(r) { return r.correct; }).length;
+        const essaisTous = resultats[0].test;
+        var total = essaisTous.length;
+        var nbCorrects = essaisTous.filter(function(r) { return r.correct; }).length;
 
         h1.style.color = "white";
         h1.style.fontSize = "30px";
@@ -462,33 +383,31 @@ function finBloc() {
     }
 }
 
-
 /**********************************
  * Suivi de la souris
  * *******************************/
 document.addEventListener("mousemove", (event) => {
-    // uniquement si le tracking est activé
     if (tracking) {
         if (!startPos) {
             startPos = { x: event.clientX, y: event.clientY };
         }
 
         const now = performance.now();
-        const tRelatif = (blockStartTime !== null) ? now - blockStartTime : 0;
+
+        // ✅ t=0 = clic START ; reset à chaque essai via startTracking()
+        const tRelatif = (mousePath.length === 0) ? 0 : (now - startClickTime);
 
         mousePath.push({
             x: event.clientX,
             y: event.clientY,
-            t: tRelatif   // temps relatif depuis le début du bloc
+            t: tRelatif
         });
     }
 
-    // Prendre le temps du premier mouvement
     if (takeFirstMoveTime) {
         firstMoveTime = performance.now();
         takeFirstMoveTime = false;
 
-        // Cacher le message de warning
         if (warningMessage) {
             warningMessage.style.display = "none";
         }
@@ -499,36 +418,30 @@ document.addEventListener("mousemove", (event) => {
  * Initialisation des boutons
  * *******************************/
 window.onload = function() {
-    // Récupérer les éléments
     boutonStart = document.getElementById('start');
     erreurEl = document.getElementById('erreur');
     warningMessage = document.getElementById('warning');
 
     boutonStart.onclick = function() {
-
         if (isfinished) {
-            // recharger la page pour une nouvelle expérience complète
             location.reload();
         }
 
+        startTracking();
+
         afficherTexte();
-        
-        // Activer le tracking que si il reste des essais
-        if (!(tentative >= essais.length + 1)) {
-            startTracking();
-        }
     };
 
-    document.getElementById('blue').onclick = function() {
-        choisirReponse('Bleu');
-    };
-    document.getElementById('yellow').onclick = function() {
-        choisirReponse('Jaune');
-    };
-    document.getElementById('red').onclick = function() {
-        choisirReponse('Rouge');
-    };
-    document.getElementById('green').onclick = function() {
-        choisirReponse('Vert');
-    };
+    document.getElementById('blue').onclick = function() { choisirReponse('Bleu'); };
+    document.getElementById('yellow').onclick = function() { choisirReponse('Jaune'); };
+    document.getElementById('red').onclick = function() { choisirReponse('Rouge'); };
+    document.getElementById('green').onclick = function() { choisirReponse('Vert'); };
 };
+
+function getPropCongr(essai) {
+    if (essai.typePaire === "MC") {
+        return essai.congruent ? 80 : 20;
+    } else { // MI
+        return essai.congruent ? 20 : 80;
+    }
+}
